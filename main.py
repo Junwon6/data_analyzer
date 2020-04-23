@@ -2,6 +2,7 @@ import config
 import zGraph as graph
 import zFile as fileCalc
 import zTime as time
+import zFeature as feature
 import os
 import glob
 import pandas as pd
@@ -9,7 +10,7 @@ import numpy as np
 
 import csv
 
-if __name__ == "__main__":
+def reshape():
     user_id = config.USER_ID[0]
     save_path = os.path.join(config.SAVE_PATH, user_id)
     dir_path = os.path.join(config.PATH, user_id)
@@ -59,3 +60,33 @@ if __name__ == "__main__":
         else:
             df.to_csv(save_file_path, mode='w', na_rep='NA')
         del df
+
+
+
+
+def getFeature():
+    user_id = config.USER_ID[0]
+    dir_path = os.path.join(config.SAVE_PATH, user_id)
+    file_list = fileCalc.getFileList(dir_path)
+
+    for file_name in file_list:
+        data = pd.read_csv(os.path.join(dir_path, file_name))
+
+        eda = {
+            'eda_med': data['eda'].dropna(axis=0).median(),
+            'eda_mean': data['eda'].dropna(axis=0).mean(),
+            'eda_std': data['eda'].dropna(axis=0).std(),
+            'eda_1q': data['eda'].dropna(axis=0).quantile(.25),
+            'eda_3q': data['eda'].dropna(axis=0).quantile(.75),
+            'eda_outliers': feature.getOutlierCount(data['eda'].dropna(axis=0), 2)
+        }
+        
+
+        # print(eda)
+        print(feature.getPeak(data['eda'].dropna(axis=0)))
+        break
+
+
+
+if __name__ == "__main__":
+    getFeature()
